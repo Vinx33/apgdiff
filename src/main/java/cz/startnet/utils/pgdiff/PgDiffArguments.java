@@ -73,6 +73,10 @@ public class PgDiffArguments {
      * Drop If Exists and Create If Exists where possible
      */
     private boolean useIfExists;
+    /**
+     * Whether GRANT/REVOKE should be ignored.
+     */
+    private boolean ignoreGrantRevoke;
 
     /**
      * Setter for {@link #addDefaults}.
@@ -253,6 +257,8 @@ public class PgDiffArguments {
                 setIgnoreStartWith(true);
             } else if ("--ignore-schema-creation".equals(args[i])) {
                 setIgnoreSchemaCreation(true);
+            } else if ("--ignore-grant-revoke".equals(args[i])) {
+                setIgnoreGrantRevoke(true);
             } else if ("--in-charset-name".equals(args[i])) {
                 setInCharsetName(args[i + 1]);
                 i++;
@@ -417,4 +423,26 @@ public class PgDiffArguments {
     public void setIgnoreSchemaCreation(final boolean ignoreSchemaCreation) {
         this.ignoreSchemaCreation = ignoreSchemaCreation;
     }
+
+    /**
+     * Getter for {@link #ignoreGrantRevoke}.
+     *
+     * @return {@link #ignoreGrantRevoke}
+     */
+    public boolean isIgnoreGrantRevoke() {
+        return this.ignoreGrantRevoke;
+    }
+
+    /**
+     * Setter for {@link #ignoreGrantRevoke}.
+     *
+     * @param ignoreGrantRevoke {@link #ignoreGrantRevoke}
+     */
+    public void setIgnoreGrantRevoke(final boolean ignoreGrantRevoke) {
+        this.ignoreGrantRevoke = ignoreGrantRevoke;
+    }
+
+
+
+
 }

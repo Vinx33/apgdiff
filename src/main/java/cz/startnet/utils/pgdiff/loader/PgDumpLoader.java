@@ -185,12 +185,13 @@ public class PgDumpLoader { //NOPMD
      *                                included in the output
      * @param ignoreSlonyTriggers     whether Slony triggers should be ignored
      * @param ignoreSchemaCreation    whether schema creation should be ignored
+     * @param ignoreGrantRevoke       whether GRANT/REVOKE should be ignored
      *
      * @return database schema from dump file
      */
     public static PgDatabase loadDatabaseSchema(final InputStream inputStream,
             final String charsetName, final boolean outputIgnoredStatements,
-            final boolean ignoreSlonyTriggers, final boolean ignoreSchemaCreation) {
+            final boolean ignoreSlonyTriggers, final boolean ignoreSchemaCreation, final boolean ignoreGrantRevoke) {
 
         final PgDatabase database = new PgDatabase();
         BufferedReader reader = null;
@@ -245,10 +246,10 @@ public class PgDumpLoader { //NOPMD
                     || PATTERN_INSERT_INTO.matcher(statement).matches()
                     || PATTERN_UPDATE.matcher(statement).matches()
                     || PATTERN_DELETE_FROM.matcher(statement).matches()) {
-            } else if (PATTERN_GRANT.matcher(statement).matches()) {
+            } else if (!ignoreGrantRevoke && PATTERN_GRANT.matcher(statement).matches()) {
                 GrantRevokeParser.parse(database, statement,
                         outputIgnoredStatements);
-            } else if (PATTERN_REVOKE.matcher(statement).matches()) {
+            } else if (!ignoreGrantRevoke && PATTERN_REVOKE.matcher(statement).matches()) {
                 GrantRevokeParser.parse(database, statement,
                         outputIgnoredStatements);
             } else if (PATTERN_CREATE_POLICY.matcher(statement).matches()) {
@@ -277,20 +278,21 @@ public class PgDumpLoader { //NOPMD
      *                                included in the output
      * @param ignoreSlonyTriggers     whether Slony triggers should be ignored
      * @param ignoreSchemaCreation    whether Schema creation should be ignored
+     * @param ignoreGrantRevoke       whether GRANT/REVOKE should be ignored
      *
      * @return database schema from dump file
      */
     public static PgDatabase loadDatabaseSchema(final String file,
             final String charsetName, final boolean outputIgnoredStatements,
-            final boolean ignoreSlonyTriggers, final boolean ignoreSchemaCreation) {
+            final boolean ignoreSlonyTriggers, final boolean ignoreSchemaCreation, final boolean ignoreGrantRevoke) {
         if (file.equals("-"))
             return loadDatabaseSchema(System.in, charsetName,
-                    outputIgnoredStatements, ignoreSlonyTriggers, ignoreSchemaCreation);
+                    outputIgnoredStatements, ignoreSlonyTriggers, ignoreSchemaCreation, ignoreGrantRevoke);
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(file);
             return loadDatabaseSchema(fis, charsetName,
-                    outputIgnoredStatements, ignoreSlonyTriggers, ignoreSchemaCreation);
+                    outputIgnoredStatements, ignoreSlonyTriggers, ignoreSchemaCreation, ignoreGrantRevoke);
         } catch (final FileNotFoundException ex) {
             throw new FileException(MessageFormat.format(
                     Resources.getString("FileNotFound"), file), ex);
